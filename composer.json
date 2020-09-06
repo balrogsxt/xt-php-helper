@@ -1,0 +1,14 @@
+{
+    "name": "balrogsxt/xt-helper",
+    "description": "幻音の帮助类",
+    "authors": [
+        {
+            "name": "幻音い",
+            "email": "i@acgxt.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "classmap": ["src"]
+    }
+}
