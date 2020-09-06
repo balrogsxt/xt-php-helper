@@ -1,0 +1,28 @@
+<?php
+require './vendor/autoload.php';
+
+use \xt\helper\ValidateHelper;
+
+//自定义类测试
+try{
+    $data = [
+        'email'=>'i@xxx.com',
+        'name'=>'aa',
+        'int'=>'1',
+        'md5'=>'11111111111111111111111111111112'
+    ];
+
+    $validate = new ValidateHelper([
+        'email'=>['email邮箱格式不正确',ValidateHelper::EMAIL],
+        'name'=>['name不能为空',ValidateHelper::REQUIRED],
+        'int'=>['int非数字',ValidateHelper::INT],
+        'md5'=>['自定义抛出错误',function($value){
+            if(!preg_match("/^[a-zA-Z0-9]{32}$/",$value)){
+                throw new Exception('md5格式错误');
+            }
+        }]
+    ]);
+    $validate->validate($data);
+}catch(\xt\exceptions\BaseException $e){
+    echo 'error -> '.$e->getMessage();
+}
