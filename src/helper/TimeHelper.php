@@ -10,6 +10,104 @@ use xt\helper\Verify;
  */
 class TimeHelper{
 
+    /**
+     * 获取今天凌晨第一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getTodayFirst($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 00:00:00'));
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取今天晚上最后一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getTodayLast($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 23:59:59'));
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取昨天凌晨第一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getYesterdayFirst($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 00:00:00')." -1 day");
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取昨天晚上最后一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getYesterdayLast($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 23:59:59')." -1 day");
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取明天凌晨第一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getTomorrowFirst($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 00:00:00')." +1 day");
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取明天晚上最后一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getTomorrowLast($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-d 23:59:59')." +1 day");
+        return $isString?date($format,$time):$time;
+    }
+
+
+    /**
+     * 获取本月第一天凌晨第一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getMonthFirst($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-01 00:00:00'));
+        return $isString?date($format,$time):$time;
+    }
+
+    /**
+     * 获取本月最后一天最后一秒时间戳
+     * @param bool $isString
+     * @param string $format
+     * @return false|int|string
+     * @author 幻音い
+     */
+    public static function getMonthLast($isString = false,$format = 'Y-m-d H:i:s'){
+        $time = strtotime(date('Y-m-01 23:59:59')." +1 month -1 day");
+        return $isString?date($format,$time):$time;
+    }
+
+
 
     /**
      * 将任意格式时间转换为时间戳
@@ -79,6 +177,13 @@ class TimeHelper{
             return date($format,strtotime($time));
         }
     }
+
+    /**
+     * 秒转时分秒
+     * @param $time
+     * @return string
+     * @author 幻音い
+     */
     public static function computedTime($time){
         $m = 60;
         $h = 60 * 60;

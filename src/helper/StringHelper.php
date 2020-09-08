@@ -30,6 +30,23 @@ class StringHelper{
     }
 
     /**
+     * 是否包含某个字符串
+     * @param $searchStr
+     * @param $string
+     * @return bool
+     * @author 幻音い
+     */
+    public static function contains($searchStr,$string){
+        if(strpos($string,$searchStr) !==false){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
+
+    /**
      * 创建随机字符串
      * @param int $size
      * @return string
