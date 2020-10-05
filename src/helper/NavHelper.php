@@ -18,8 +18,8 @@ class NavHelper{
      * @author 幻音い
      */
     public static function getRequest($pageField = 'page',$sizeField = 'size',$maxSize = 20) : NavRequest{
-        $page = isset($_REQUEST[$pageField])?1:intval($_REQUEST[$pageField]);
-        $size = isset($_REQUEST[$sizeField])?1:intval($_REQUEST[$sizeField]);
+        $page = isset($_REQUEST[$pageField])?intval($_REQUEST[$pageField]):1;
+        $size = isset($_REQUEST[$sizeField])?intval($_REQUEST[$sizeField]):20;
         if($size >= $maxSize){
             $size = $maxSize;
         }
