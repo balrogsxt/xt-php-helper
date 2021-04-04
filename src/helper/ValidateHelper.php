@@ -10,7 +10,8 @@ use xt\exceptions\BaseException;
  * @package Xt\Helper
  */
 class ValidateHelper{
-
+    const NONE = 'none';//不做验证
+    const URL = 'url';//http/httpsurl判断
     const EMAIL = 'email';//邮箱验证规则
     const REQUIRED = 'required';//必填
     const INT = 'int';//整数验证
@@ -39,19 +40,25 @@ class ValidateHelper{
     /**
      * 开始验证
      * @param array $data 验证数据
-     * @return bool
+     * @return \StdClass | array
      * @throws BaseException
      * @author 幻音い
      */
-    public function validate(array $data){
+    public function validate(array $data,$isStdClassReturn = true,...$params){
+        $validateValue = $isStdClassReturn?new \StdClass():[];
         foreach($this->rule as $field => $item){
             if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
 
-            if(!isset($data[$field]))continue;
+
 
             $errMsg = $item[0];
             $validate = $item[1];
+            if(!isset($data[$field])) {
+                if(Verify::isEmpty($errMsg)) $errMsg = '请求参数丢失或错误!';
+                throw new BaseException($errMsg);
+            }
+
 
             $value = Verify::isEmpty($data[$field]) ? '':$data[$field];
 
@@ -81,6 +88,9 @@ class ValidateHelper{
                 case self::INT://如果不是整数,则抛出错误
                     if(Verify::isEmpty($value) || !preg_match("/^[0-9]+$/",$value))throw new BaseException($errMsg);
                     break;
+                case self::URL:
+                    if(!Verify::isUrl($value))throw new BaseException($errMsg);
+                    break;
                 case self::BASE64:
                     if(!Verify::isBase64($value))throw new BaseException($errMsg);
                     break;
@@ -94,8 +104,15 @@ class ValidateHelper{
                     if(!Verify::isPhone($value))throw new BaseException($errMsg);
                     break;
             }
+            //记录验证成功的数据
+            if($isStdClassReturn){
+                $validateValue->$field = $value;
+            }else{
+                $validateValue[$field] = $value;
+            }
+
         }
-        return true;
+        return $validateValue;
     }
 
 }
