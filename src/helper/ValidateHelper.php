@@ -57,7 +57,6 @@ class ValidateHelper{
             if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
 
-
             $errMsg = $item[0];
             $validate = $item[1];
             if(!isset($data[$field])) {
