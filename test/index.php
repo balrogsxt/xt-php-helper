@@ -48,7 +48,7 @@ try{
        }]
    ]);
    $data = $validate->validate($data);
-   var_dump($data['value']);
+   var_dump($data->getParam('md5'));
 //    var_dump($data->in);
 }catch(\xt\exceptions\BaseException $e){
    echo 'error -> '.$e->getMessage();
