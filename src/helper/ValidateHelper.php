@@ -40,10 +40,11 @@ class ValidateHelper{
     /**
      * 开始验证
      * @param array $data 验证数据
+     * @return ValidateEntity
      * @throws BaseException
      * @author 幻音い
      */
-    public function validate(array $data){
+    public function validate(array $data) : ValidateEntity{
         $validateValue = new ValidateEntity();
         
         foreach($data as $field=>$value){
