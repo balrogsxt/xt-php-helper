@@ -78,6 +78,9 @@ class Verify{
      * @return bool
      */
     public static function isEmpty($str){
+        if(is_string($str) || is_numeric($str)){
+            if(strlen($str) > 0)return false;
+        }
         if(empty($str))return true;
         if($str=="")return true;
         if(is_string($str)){
