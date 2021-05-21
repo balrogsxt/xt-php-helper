@@ -46,8 +46,21 @@ class ValidateHelper{
      */
     public function validate(array $data) : ValidateEntity{
         $validateValue = new ValidateEntity();
+        //验证指定规则
+        foreach($this->rule as $field=>$item){
+            if(isset($validateValue[$field]))continue;
+            if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
+            if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
+            $errMsg = $item[0];
+            $validate = $item[1];
+            $value = Verify::isEmpty($data[$field]) ? '':$data[$field];
+            $this->verify($data,$field,$value,$validate,$errMsg);
+            $validateValue->$field = $value;
+        }
         
+        //验证直接的数据
         foreach($data as $field=>$value){
+            if(isset($validateValue[$field]))continue;
             //判断是否有验证规则
             if(!isset($this->rule[$field])){
                 //跳过验证
@@ -57,71 +70,77 @@ class ValidateHelper{
             $item = $this->rule[$field];
             if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
-
             $errMsg = $item[0];
             $validate = $item[1];
-            if(!isset($data[$field])) {
-                if(Verify::isEmpty($errMsg)) $errMsg = '请求参数丢失或错误!';
-                throw new BaseException($errMsg);
-            }
 
+            $this->verify($data,$field,$value,$validate,$errMsg);
 
-            $value = Verify::isEmpty($data[$field]) ? '':$data[$field];
-
-            //自定义验证器
-            if(is_callable($validate)){
-                try{
-                    if($validate($value) === false){//如果返回false则抛出错误
-                        throw new BaseException($errMsg);
-                    }
-                }catch(\Exception $e){//抛出异常则可自定义描述
-                    throw new BaseException($e->getMessage());
-                }
-            }
-
-            //根据指定类型已定义验证器
-            switch($validate){
-                case self::REQUIRED://验证字段值是否如果为空则抛出异常
-                    if(Verify::isEmpty($value))throw new BaseException($errMsg);
-                    break;
-                case self::EMAIL://验证字段值如果不是邮箱则抛出错误
-                    if(!Verify::isEmail($value))throw new BaseException($errMsg);
-                    break;
-                case self::FLOAT://如果不是整数或不是带小数数字则抛出错误
-                    if(Verify::isEmpty($value) || !preg_match("/^([0-9]+)\.?([0-9]+)?$/",$value))throw new BaseException($errMsg);
-                    break;
-                case self::INT://如果不是整数,则抛出错误
-                    if(Verify::isEmpty($value) || !preg_match("/^[0-9]+$/",$value))throw new BaseException($errMsg);
-                    break;
-                case self::URL:
-                    if(!Verify::isUrl($value))throw new BaseException($errMsg);
-                    break;
-                case self::BASE64:
-                    if(!Verify::isBase64($value))throw new BaseException($errMsg);
-                    break;
-                case self::JSON:
-                    if(!Verify::isJson($value))throw new BaseException($errMsg);
-                    break;
-                case self::IP:
-                    if(!Verify::isIP($value))throw new BaseException($errMsg);
-                    break;
-                case self::PHONE:
-                    if(!Verify::isPhone($value))throw new BaseException($errMsg);
-                    break;
-            }
-
-            //根据验证数据类型定义的验证器
-            if(is_array($validate)){
-                //in array 验证器
-                if(!in_array($value,$validate))throw new BaseException($errMsg);
-            }else if(is_string($validate) && strlen($validate) >= 2 && substr($validate,0,1) == '/' && substr($validate,-1)){ //正则验证器
-                if(!preg_match($validate,$value)) throw new BaseException($errMsg);
-            }
-            
             //记录验证成功的数据
             $validateValue->$field = $value;
         }
         return $validateValue;
+    }
+
+    private function verify($data,$field,$value,$validate,$errMsg){
+
+        
+        if(!isset($data[$field])) {
+            if(Verify::isEmpty($errMsg)) $errMsg = '请求参数丢失或错误!';
+            throw new BaseException($errMsg);
+        }
+
+
+        $value = Verify::isEmpty($data[$field]) ? '':$data[$field];
+
+        //自定义验证器
+        if(is_callable($validate)){
+            try{
+                if($validate($value) === false){//如果返回false则抛出错误
+                    throw new BaseException($errMsg);
+                }
+            }catch(\Exception $e){//抛出异常则可自定义描述
+                throw new BaseException($e->getMessage());
+            }
+        }
+
+        //根据指定类型已定义验证器
+        switch($validate){
+            case self::REQUIRED://验证字段值是否如果为空则抛出异常
+                if(Verify::isEmpty($value))throw new BaseException($errMsg);
+                break;
+            case self::EMAIL://验证字段值如果不是邮箱则抛出错误
+                if(!Verify::isEmail($value))throw new BaseException($errMsg);
+                break;
+            case self::FLOAT://如果不是整数或不是带小数数字则抛出错误
+                if(Verify::isEmpty($value) || !preg_match("/^([0-9]+)\.?([0-9]+)?$/",$value))throw new BaseException($errMsg);
+                break;
+            case self::INT://如果不是整数,则抛出错误
+                if(Verify::isEmpty($value) || !preg_match("/^[0-9]+$/",$value))throw new BaseException($errMsg);
+                break;
+            case self::URL:
+                if(!Verify::isUrl($value))throw new BaseException($errMsg);
+                break;
+            case self::BASE64:
+                if(!Verify::isBase64($value))throw new BaseException($errMsg);
+                break;
+            case self::JSON:
+                if(!Verify::isJson($value))throw new BaseException($errMsg);
+                break;
+            case self::IP:
+                if(!Verify::isIP($value))throw new BaseException($errMsg);
+                break;
+            case self::PHONE:
+                if(!Verify::isPhone($value))throw new BaseException($errMsg);
+                break;
+        }
+
+        //根据验证数据类型定义的验证器
+        if(is_array($validate)){
+            //in array 验证器
+            // if(!in_array($value,$validate))throw new BaseException($errMsg);
+        }else if(is_string($validate) && strlen($validate) >= 2 && substr($validate,0,1) == '/' && substr($validate,-1)){ //正则验证器
+            if(!preg_match($validate,$value)) throw new BaseException($errMsg);
+        }
     }
 
 }

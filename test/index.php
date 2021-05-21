@@ -34,7 +34,8 @@ try{
        'int'=>'1',
        'md5'=>'11111111111111111111111111111112',
        'value'=>'test',
-       'regex'=>'a'
+       'regex'=>'a',
+       'template'=>'123'
    ];
 
    $validate = new ValidateHelper([
@@ -42,12 +43,13 @@ try{
        'email'=>['email邮箱格式不正确',ValidateHelper::EMAIL],
        'name'=>['name不能为空',ValidateHelper::REQUIRED],
        'int'=>['int非数字',ValidateHelper::INT],
-       'regex'=>['不处于正则验证规则中','/[0-9]+/'],
+    //    'regex'=>['不处于正则验证规则中','/[0-9]+/'],
        'md5'=>['自定义抛出错误',function($value){
            if(!preg_match("/^[a-zA-Z0-9]{32}$/",$value)){
                throw new Exception('md5格式错误');
            }
-       }]
+       }],
+       'template'=>['template not found',ValidateHelper::REQUIRED]
    ]);
    $data = $validate->validate($data);
    var_dump($data->getParam('md5'));
