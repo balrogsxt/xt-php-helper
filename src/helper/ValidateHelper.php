@@ -57,7 +57,7 @@ class ValidateHelper{
             $this->verify($data,$field,$value,$validate,$errMsg);
             $validateValue->$field = $value;
         }
-        
+
         //验证直接的数据
         foreach($data as $field=>$value){
             if(isset($validateValue[$field]))continue;
@@ -83,7 +83,7 @@ class ValidateHelper{
 
     private function verify($data,$field,$value,$validate,$errMsg){
 
-        
+
         if(!isset($data[$field])) {
             if(Verify::isEmpty($errMsg)) $errMsg = '请求参数丢失或错误!';
             throw new BaseException($errMsg);
@@ -137,7 +137,7 @@ class ValidateHelper{
         //根据验证数据类型定义的验证器
         if(is_array($validate)){
             //in array 验证器
-            // if(!in_array($value,$validate))throw new BaseException($errMsg);
+             if(!in_array($value,$validate))throw new BaseException($errMsg);
         }else if(is_string($validate) && strlen($validate) >= 2 && substr($validate,0,1) == '/' && substr($validate,-1)){ //正则验证器
             if(!preg_match($validate,$value)) throw new BaseException($errMsg);
         }
