@@ -110,10 +110,12 @@ class ValidateHelper{
                     break;
             }
 
-            //根据验证数据类型定义的验证码
+            //根据验证数据类型定义的验证器
             if(is_array($validate)){
                 //in array 验证器
                 if(!in_array($value,$validate))throw new BaseException($errMsg);
+            }else if(is_string($validate) && strlen($validate) >= 2 && substr($validate,0,1) == '/' && substr($validate,-1)){ //正则验证器
+                if(!preg_match($validate,$value)) throw new BaseException($errMsg);
             }
             
             //记录验证成功的数据
