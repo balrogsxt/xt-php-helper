@@ -35,7 +35,7 @@ try{
        'md5'=>'11111111111111111111111111111112',
        'value'=>'test',
        'regex'=>'a',
-       'template'=>'123'
+    //    'template'=>'123'
    ];
 
    $validate = new ValidateHelper([

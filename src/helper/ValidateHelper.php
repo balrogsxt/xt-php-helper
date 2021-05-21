@@ -53,7 +53,7 @@ class ValidateHelper{
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
             $errMsg = $item[0];
             $validate = $item[1];
-            $value = Verify::isEmpty($data[$field]) ? '':$data[$field];
+            $value = Verify::isEmpty($data[$field]??'') ? '':$data[$field];
             $this->verify($data,$field,$value,$validate,$errMsg);
             $validateValue->$field = $value;
         }
