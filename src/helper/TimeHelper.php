@@ -164,7 +164,9 @@ class TimeHelper{
      * @return false|string
      */
     public static function formatTime($time = 'DEFAULT_CURRENT_TIME',$format='Y-m-d H:i:s',$def='暂无时间'){
-        $time = $time=='DEFAULT_CURRENT_TIME'?time():$time;
+        if($time === 'DEFAULT_CURRENT_TIME'){
+            $time = time();
+        }
         if($time==0){
             return $def;
         }
