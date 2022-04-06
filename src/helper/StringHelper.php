@@ -91,4 +91,17 @@ class StringHelper{
         return str_replace(substr($phone,3,4),'****',$phone);
     }
 
+    /**
+     * 隐藏身份证号
+     * @param $idcard
+     * @author 幻音い
+     * @date: 2022/4/6 3:01 下午
+     */
+    public static function hiddenIdCard($idcard){
+        if(strlen($idcard) != 18){
+            return "******************";
+        }
+        return substr($idcard,0,6)."*********".substr($idcard,-3);
+    }
+
 }

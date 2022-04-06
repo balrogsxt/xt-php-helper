@@ -20,6 +20,10 @@ class ValidateHelper{
     const BASE64 = 'base64';//Base64验证
     const IP = 'ip';//ipv4格式验证
     const PHONE = 'phone';//手机号码格式验证
+    const DateTime = 'datetime';//Y-m-d H:i:s验证器
+    const Date = 'date';//Y-m-d验证器
+    const DateMonth = 'datemonth';//Y-m 验证器
+    const Number = 'number';//支持验证负数数字、浮点的验证码
 
     /**
      * 字段=>[异常描述,验证类型(支持自定义函数)]
@@ -53,11 +57,14 @@ class ValidateHelper{
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
             $errMsg = $item[0];
             $validate = $item[1];
+            $validateMessage = [];//特定字符串验证器自定义文字
+            if(count($item) >= 3){
+                $validateMessage = is_array($item[2])?$item[2]:[];
+            }
             $value = Verify::isEmpty($data[$field]??'') ? '':$data[$field];
-            $this->verify($data,$field,$value,$validate,$errMsg);
+            $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
             $validateValue->$field = $value;
         }
-
         //验证直接的数据
         foreach($data as $field=>$value){
             if(isset($validateValue[$field]))continue;
@@ -70,10 +77,14 @@ class ValidateHelper{
             $item = $this->rule[$field];
             if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
             if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
+            $validateMessage = [];//特定字符串验证器自定义文字
+            if(count($item) >= 3){
+                $validateMessage = is_array($item[2])?$item[2]:[];
+            }
             $errMsg = $item[0];
             $validate = $item[1];
 
-            $this->verify($data,$field,$value,$validate,$errMsg);
+            $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
 
             //记录验证成功的数据
             $validateValue->$field = $value;
@@ -81,12 +92,18 @@ class ValidateHelper{
         return $validateValue;
     }
 
-    private function verify($data,$field,$value,$validate,$errMsg){
-
-
+    private function verify($data,$field,$value,$validate,$errMsg,$validateMessage = []){
         if(!isset($data[$field])) {
-            if(Verify::isEmpty($errMsg)) $errMsg = '请求参数丢失或错误!';
+            if(Verify::isEmpty($errMsg)) $errMsg = "缺少「{$field}」参数";
             throw new BaseException($errMsg);
+        }else{
+            if(Verify::isEmpty($errMsg)){
+                if(is_string($validate)){
+                    $errMsg = "{$field}不是有效的{$validate}";
+                }else{
+                    $errMsg = "{$field}参数验证无效";
+                }
+            }
         }
 
 
@@ -117,6 +134,9 @@ class ValidateHelper{
             case self::INT://如果不是整数,则抛出错误
                 if(Verify::isEmpty($value) || !preg_match("/^[0-9]+$/",$value))throw new BaseException($errMsg);
                 break;
+            case self::Number:
+                if(!is_numeric($value))throw new BaseException($errMsg);
+                break;
             case self::URL:
                 if(!Verify::isUrl($value))throw new BaseException($errMsg);
                 break;
@@ -140,6 +160,58 @@ class ValidateHelper{
              if(!in_array($value,$validate))throw new BaseException($errMsg);
         }else if(is_string($validate) && strlen($validate) >= 2 && substr($validate,0,1) == '/' && substr($validate,-1)){ //正则验证器
             if(!preg_match($validate,$value)) throw new BaseException($errMsg);
+        }else if(is_string($validate)){
+            //特定验证器,多个以|隔开
+            //最小英文字母: min:整数数字
+            //最大英文字母: max:整数数字
+            //最小中文字数: cn_min:整数数字
+            //最大中文字数: cn_max:整数数字
+            $validateList = explode("|",$validate);
+            foreach($validateList as $rule){
+                list($ruleType,$param) = explode(":",$rule);
+
+                $ruleErrMsg = $validateMessage[$ruleType]??"";
+                switch($ruleType){
+                    case 'require':
+                        if(Verify::isEmpty($value)){
+                            if(Verify::isEmpty($ruleErrMsg)) $ruleErrMsg = "%s不能为空";
+                            throw new BaseException(sprintf($ruleErrMsg,$errMsg));
+                        }
+                        break;
+                    case 'min':
+                        if($param > strlen($value)){
+                            if(Verify::isEmpty($ruleErrMsg)){
+                                $ruleErrMsg = "%s最少%d个字符";
+                            }
+                            throw new BaseException(sprintf($ruleErrMsg,$errMsg,$param));
+                        }
+                        break;
+                    case 'max':
+                        if(strlen($value) > $param){
+                            if(Verify::isEmpty($ruleErrMsg)){
+                                $ruleErrMsg = "%s最多%d个字符";
+                            }
+                            throw new BaseException(sprintf($ruleErrMsg,$errMsg,$param));
+                        }
+                        break;
+                    case 'cn_min':
+                        if($param > mb_strlen($value)){
+                            if(Verify::isEmpty($ruleErrMsg)){
+                                $ruleErrMsg = "%s最少%d个文字或字符";
+                            }
+                            throw new BaseException(sprintf($ruleErrMsg,$errMsg,$param));
+                        }
+                        break;
+                    case 'cn_max':
+                        if(mb_strlen($value) > $param){
+                            if(Verify::isEmpty($ruleErrMsg)){
+                                $ruleErrMsg = "%s最多%d个文字或字符";
+                            }
+                            throw new BaseException(sprintf($ruleErrMsg,$errMsg,$param));
+                        }
+                        break;
+                }
+            }
         }
     }
 
