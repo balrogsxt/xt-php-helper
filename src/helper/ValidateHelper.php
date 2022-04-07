@@ -49,52 +49,47 @@ class ValidateHelper{
      * @author 幻音い
      */
     public function validate(array $data) : ValidateEntity{
-        try{
-            $validateValue = new ValidateEntity();
-            //验证指定规则
-            foreach($this->rule as $field=>$item){
-                if(isset($validateValue[$field]))continue;
-                if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
-                if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
-                $errMsg = $item[0];
-                $validate = $item[1];
-                $validateMessage = [];//特定字符串验证器自定义文字
-                if(count($item) >= 3){
-                    $validateMessage = is_array($item[2])?$item[2]:[];
-                }
-                $value = Verify::isEmpty($data[$field]??'') ? '':$data[$field];
-                $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
-                $validateValue->$field = $value;
+        $validateValue = new ValidateEntity();
+        //验证指定规则
+        foreach($this->rule as $field=>$item){
+            if(isset($validateValue[$field]))continue;
+            if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
+            if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
+            $errMsg = $item[0];
+            $validate = $item[1];
+            $validateMessage = [];//特定字符串验证器自定义文字
+            if(count($item) >= 3){
+                $validateMessage = is_array($item[2])?$item[2]:[];
             }
-            //验证直接的数据
-            foreach($data as $field=>$value){
-                if(isset($validateValue[$field]))continue;
-                //判断是否有验证规则
-                if(!isset($this->rule[$field])){
-                    //跳过验证
-                    $validateValue->$field = $value;
-                    continue;
-                }
-                $item = $this->rule[$field];
-                if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
-                if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
-                $validateMessage = [];//特定字符串验证器自定义文字
-                if(count($item) >= 3){
-                    $validateMessage = is_array($item[2])?$item[2]:[];
-                }
-                $errMsg = $item[0];
-                $validate = $item[1];
-
-                $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
-
-                //记录验证成功的数据
-                $validateValue->$field = $value;
-            }
-            return $validateValue;
-        }catch(\Exception $e){
-            echo $e->getMessage().$e->getLine().$e->getFile().$e->getTraceAsString();
-            return null;
+            $value = Verify::isEmpty($data[$field]??'') ? '':$data[$field];
+            $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
+            $validateValue->$field = $value;
         }
+        //验证直接的数据
+        foreach($data as $field=>$value){
+            if(isset($validateValue[$field]))continue;
+            //判断是否有验证规则
+            if(!isset($this->rule[$field])){
+                //跳过验证
+                $validateValue->$field = $value;
+                continue;
+            }
+            $item = $this->rule[$field];
+            if(!is_array($item))throw new BaseException('验证器参数错误,第二个参数应为Array');
+            if(!(count($item) >= 2))throw new BaseException('验证器参数错误,第二个参数参数不足');
+            $validateMessage = [];//特定字符串验证器自定义文字
+            if(count($item) >= 3){
+                $validateMessage = is_array($item[2])?$item[2]:[];
+            }
+            $errMsg = $item[0];
+            $validate = $item[1];
+
+            $this->verify($data,$field,$value,$validate,$errMsg,$validateMessage);
+
+            //记录验证成功的数据
+            $validateValue->$field = $value;
+        }
+        return $validateValue;
     }
 
     private function verify($data,$field,$value,$validate,$errMsg,$validateMessage = []){
